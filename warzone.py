@@ -1,12 +1,15 @@
 import asyncio, json , os
 from callofduty import Mode, Platform, Title, Login
 from elasticsearch import Elasticsearch
-from datetime import datetime
+from datetime import datetime, timedelta
 
 async def lambda_handler():
-    login = os.environ.get('LOGIN')
-    password = os.environ.get('PASS')
+    login = 'login'
+    password = 'pass'
+    print(login)
+    print(password)
     client = await Login(login, password)
+    print(client)
     friends = await get_friends(client)
     for player in friends:
         username=player['username']
@@ -14,10 +17,10 @@ async def lambda_handler():
         await save_player_stats(client, player)
 
 async def get_player_stats():
-    login = os.environ.get('LOGIN')
-    password = os.environ.get('PASS')
+    login = os.environ.get('login')
+    password = os.environ.get('pass')
     client = await Login(login, password)
-    playername="BrokyBrawks"
+    playername="Ami1"
     results = await client.SearchPlayers(
         Platform.Activision, playername, limit=30)
     print(results)
@@ -29,21 +32,25 @@ async def get_player_stats():
 
 async def save_player_stats(client, player):
     matches = await client.GetPlayerMatchesSummary(
-        player["platform"] , player["username"],Title.ModernWarfare , Mode.Warzone, limit=20)
+        player["platform"] , player["username"],Title.ModernWarfare , Mode.Warzone, limit=200)
     body = {
         'name': player["username"], 
         'stats': matches,
-        'timestamp': datetime.now()
+        'timestamp': datetime.now() - timedelta(hours=1)
     }
-    es = Elasticsearch("es01")
-    es.indices.create(index='wz', ignore=400)
-    res = es.index(index="wz", body=body)
+    es = Elasticsearch("localhost")
+    es.indices.create(index='wzf', ignore=400)
+    res = es.index(index="wzf", body=body)
     print(res)
 
 
 async def get_friends(client):
     friends = await client.GetMyFriends()
-    friends_usernames = []
+    friends_usernames = [
+            {"username":"Ami1", "platform":Platform.BattleNet},
+            {"username":"Ami2", "platform":Platform.BattleNet},
+            {"username":"Ami3", "platform":Platform.BattleNet}
+            ]
     for friend in friends:
         if "#" in friend.username:
             friends_usernames.append({"username":friend.username, "platform":friend.platform})
