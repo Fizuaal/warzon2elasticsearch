@@ -15,3 +15,5 @@ Ami1 = Vous, normalement
 Et pouf c'est stocké, c'est tout prêt
 
 Testé avec Centos8
+
+Merci https://github.com/ttwthomas pour le script de base
