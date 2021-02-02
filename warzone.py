@@ -6,10 +6,7 @@ from datetime import datetime, timedelta
 async def lambda_handler():
     login = 'login'
     password = 'pass'
-    print(login)
-    print(password)
     client = await Login(login, password)
-    print(client)
     friends = await get_friends(client)
     for player in friends:
         username=player['username']
